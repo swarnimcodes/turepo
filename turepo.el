@@ -47,24 +47,24 @@ Argument ABS-FP Absolute file path of the file to be read."
   (cond
    ;; If it's already HTTPS, use it directly
    ((string-match "url = \\(https://[^ \t\n]+\\)" git-cfg)
-    (setq-local url (match-string 1 git-cfg))
+    (setq-local turepo-url (match-string 1 git-cfg))
     ;; Strip .git suffix if present
-    (setq-local url (replace-regexp-in-string "\\.git$" "" url))
-    (message "Opening: %s" url)
-    (browse-url url))
+    (setq-local turepo-url (replace-regexp-in-string "\\.git$" "" turepo-url))
+    (message "Opening: %s" turepo-url)
+    (browse-url turepo-url))
 
    ;; Otherwise parse SSH URL
    ((string-match "url = git@\\([^:]+\\):\\(.+\\)\\.git" git-cfg)
     (setq-local ssh-host (match-string 1 git-cfg))
     (setq-local repo-path (match-string 2 git-cfg))
     ;; Check if it's GitLab, otherwise default to GitHub
-    (setq-local hostname
+    (setq-local turepo-hostname
                 (if (string-match-p "gitlab" ssh-host)
                     "gitlab.com"
                   "github.com"))
-    (setq-local url (concat "https://" hostname "/" repo-path))
-    (message "Opening: %s" url)
-    (browse-url url))
+    (setq-local turepo-url (concat "https://" turepo-hostname "/" repo-path))
+    (message "Opening: %s" turepo-url)
+    (browse-url turepo-url))
 
    (t (message "Could not find git remote URL"))))
 
