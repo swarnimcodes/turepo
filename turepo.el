@@ -11,7 +11,7 @@
 ;;; Commentary:
 
 ;; turepo provides a simple command to open the current project's
-;; git repository in your web browser. It supports:
+;; git repository in your web browser.  It supports:
 ;; - GitHub (SSH and HTTPS)
 ;; - GitLab (SSH and HTTPS)
 ;; - SSH aliases (github-work, gitlab-personal, etc.)
@@ -23,8 +23,9 @@
 
 ;;; Code:
 
-;; func :: read text as string from an absolute file path
 (defun read-abs-fp (abs-fp)
+  "Read text as string from an absolute file path.
+Argument ABS-FP Absolute file path of the file to be read."
   (when (file-exists-p abs-fp)
     (with-temp-buffer
       (insert-file-contents abs-fp)
@@ -33,6 +34,7 @@
 
 ;; main :: go to repo
 (defun turepo ()
+  "Main function to go to the current project's git repo web page."
   (interactive)
   (setq-local root-dir (project-root (project-current)))
   (message "Root Directory: %s" root-dir)
