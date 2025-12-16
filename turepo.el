@@ -4,7 +4,7 @@
 
 ;; Author: Swarnim Barapatre <swarnim.barapatre@accurateic.in>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "27.1"))
+;; Package-Requires: ((emacs "28.1"))
 ;; Keywords: vc, git, convenience
 ;; URL: https://github.com/swarnimcodes/turepo
 
@@ -23,7 +23,7 @@
 
 ;;; Code:
 
-(defun read-abs-fp (abs-fp)
+(defun turepo-read-abs-fp (abs-fp)
   "Read text as string from an absolute file path.
 Argument ABS-FP Absolute file path of the file to be read."
   (when (file-exists-p abs-fp)
@@ -40,7 +40,7 @@ Argument ABS-FP Absolute file path of the file to be read."
   (message "Root Directory: %s" root-dir)
   ;; git config file
   (setq-local git-cfg-fp (file-name-concat (expand-file-name root-dir) ".git" "config"))
-  (setq-local git-cfg (read-abs-fp git-cfg-fp))
+  (setq-local git-cfg (turepo-read-abs-fp git-cfg-fp))
   (message "%s" git-cfg)
 
   ;; search for git url
@@ -66,8 +66,7 @@ Argument ABS-FP Absolute file path of the file to be read."
     (message "Opening: %s" url)
     (browse-url url))
 
-   (t (message "Could not find git remote URL")))
-  )
+   (t (message "Could not find git remote URL"))))
 
 
 (provide 'turepo)
