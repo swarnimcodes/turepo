@@ -38,6 +38,7 @@
 ;;   (global-set-key (kbd "C-c g r") 'turepo)
 
 ;;; Code:
+(require 'vc)
 
 (defun turepo-read-abs-fp (abs-fp)
   "Read text as string from an absolute file path.
@@ -52,37 +53,36 @@ Argument ABS-FP Absolute file path of the file to be read."
 (defun turepo ()
   "Main function to go to the current project's git repo web page."
   (interactive)
-  (setq-local root-dir (project-root (project-current)))
-  (message "Root Directory: %s" root-dir)
-  ;; git config file
-  (setq-local git-cfg-fp (file-name-concat (expand-file-name root-dir) ".git" "config"))
-  (setq-local git-cfg (turepo-read-abs-fp git-cfg-fp))
-  (message "%s" git-cfg)
+  (let* ((turepo-root-dir (vc-root-dir))
+         (turepo-git-cfg-fp (file-name-concat (expand-file-name turepo-root-dir) ".git" "config"))
+         (turepo-git-cfg (turepo-read-abs-fp turepo-git-cfg-fp)))
+    (message "Root Directory: %s" turepo-root-dir)
+    (message "%s" turepo-git-cfg)
 
-  ;; search for git url
-  (cond
-   ;; If it's already HTTPS, use it directly
-   ((string-match "url = \\(https://[^ \t\n]+\\)" git-cfg)
-    (setq-local turepo-url (match-string 1 git-cfg))
-    ;; Strip .git suffix if present
-    (setq-local turepo-url (replace-regexp-in-string "\\.git$" "" turepo-url))
-    (message "Opening: %s" turepo-url)
-    (browse-url turepo-url))
+    ;; search for git url
+    (cond
+     ;; if it's already HTTPS, use it directly
+     ((string-match "url = \\(https://[^ \t\n]+\\)" turepo-git-cfg)
+      (let* ((turepo-url-raw (match-string 1 turepo-git-cfg))
+             ;; strip .git suffix if present
+             (turepo-url (replace-regexp-in-string "\\.git$" "" turepo-url-raw)))
+        (message "Opening: %s" turepo-url)
+        (browse-url turepo-url)))
 
-   ;; Otherwise parse SSH URL
-   ((string-match "url = git@\\([^:]+\\):\\(.+\\)\\.git" git-cfg)
-    (setq-local ssh-host (match-string 1 git-cfg))
-    (setq-local repo-path (match-string 2 git-cfg))
-    ;; Check if it's GitLab, otherwise default to GitHub
-    (setq-local turepo-hostname
-                (if (string-match-p "gitlab" ssh-host)
-                    "gitlab.com"
-                  "github.com"))
-    (setq-local turepo-url (concat "https://" turepo-hostname "/" repo-path))
-    (message "Opening: %s" turepo-url)
-    (browse-url turepo-url))
+     ;; otherwise parse SSH URL
+     ((string-match "url = git@\\([^:]+\\):\\(.+\\)\\.git" turepo-git-cfg)
+      (let* ((turepo-ssh-host (match-string 1 turepo-git-cfg))
+             (turepo-repo-path (match-string 2 turepo-git-cfg))
+             ;; check if it's GitLab, otherwise default to GitHub
+	     ;; TODO: maybe have a more sophisticated gitlab check
+             (turepo-hostname (if (string-match-p "gitlab" turepo-ssh-host)
+                                  "gitlab.com"
+                                "github.com"))
+             (turepo-url (concat "https://" turepo-hostname "/" turepo-repo-path)))
+        (message "Opening: %s" turepo-url)
+        (browse-url turepo-url)))
 
-   (t (message "Could not find git remote URL"))))
+     (t (message "Could not find git remote URL")))))
 
 
 (provide 'turepo)
