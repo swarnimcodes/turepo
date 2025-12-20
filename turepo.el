@@ -40,12 +40,12 @@
 ;;; Code:
 (require 'vc)
 
-(defun turepo-read-abs-fp (abs-fp)
+(defun turepo-read-abs-fp (turepo-abs-fp)
   "Read text as string from an absolute file path.
 Argument ABS-FP Absolute file path of the file to be read."
-  (when (file-exists-p abs-fp)
+  (when (file-exists-p turepo-abs-fp)
     (with-temp-buffer
-      (insert-file-contents abs-fp)
+      (insert-file-contents turepo-abs-fp)
       (buffer-string))))
 
 
