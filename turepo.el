@@ -71,21 +71,29 @@ Argument ABS-FP Absolute file path of the file to be read."
 	  (let* ((turepo-url-raw (match-string 1 turepo-git-cfg))
 		 ;; strip .git suffix if present
 		 (turepo-url (replace-regexp-in-string "\\.git$" "" turepo-url-raw)))
-            (message "Opening: %s" turepo-url)
+            (message "[turepo-info] Opening: %s" turepo-url)
             (browse-url turepo-url)))
 
-	 ;; otherwise parse SSH URL
+	 ;; ssh:// format (codeberg, sourcehut, etc.)
+	 ;; examples: ssh://git@codeberg.org/smarniw/testing-turepo.git
+	 ;;           ssh://git@git.sr.ht/~smarniw/testing-repo
+	 ;;           ssh://git@git.sr.ht/~reykjalin/fn
+	 ((string-match "url = ssh://git@\\(.+\\)" turepo-git-cfg)
+	  (let* ((turepo-path (match-string 1 turepo-git-cfg))  ;; e.g., "codeberg.org/smarniw/repo.git"
+		 (turepo-url (concat "https://" (replace-regexp-in-string "\\.git$" "" turepo-path))))
+	    (message "[turepo-info] Opening %s" turepo-url)
+	    (browse-url turepo-url)))
+
+	 ;; github/gitlab format :: git@HOST:REPO.git
+	 ;; examples: git@github.com:swarnimcodes/turepo.git
+	 ;;           git@gitlab.com:user/repo.git
+	 ;;           git@gitlab.evilcorp.in:user/repo.git (self-hosted instances)
 	 ((string-match "url = git@\\([^:]+\\):\\(.+\\)\\.git" turepo-git-cfg)
 	  (let* ((turepo-ssh-host (match-string 1 turepo-git-cfg))
 		 (turepo-repo-path (match-string 2 turepo-git-cfg))
-		 ;; check if it's GitLab, otherwise default to GitHub
-		 ;; TODO: maybe have a more sophisticated gitlab check
-		 (turepo-hostname (if (string-match-p "gitlab" turepo-ssh-host)
-                                      "gitlab.com"
-                                    "github.com"))
-		 (turepo-url (concat "https://" turepo-hostname "/" turepo-repo-path)))
-            (message "[turepo-info] Opening %s" turepo-url)
-            (browse-url turepo-url)))
+		 (turepo-url (concat "https://" turepo-ssh-host "/" turepo-repo-path)))
+	    (message "[turepo-info] Opening %s" turepo-url)
+	    (browse-url turepo-url)))
 
 	 (t (message "Could not find git remote URL")))))))
 
