@@ -95,7 +95,7 @@ Argument ABS-FP Absolute file path of the file to be read."
 	    (message "[turepo-info] Opening %s" turepo-url)
 	    (browse-url turepo-url)))
 
-	 (t (message "Could not find git remote URL")))))))
+	 (t (message "[turepo-error] Could not find an appropriate git remote URL")))))))
 
 (provide 'turepo)
 ;;; turepo.el ends here
