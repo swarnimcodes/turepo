@@ -1,0 +1,28 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Elisp Byte Compilation CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  byte-compile:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Emacs
+      uses: purcell/setup-emacs@master
+      with:
+        version: '30.01'
+
+        
+    - name: Byte Compilation
+      run: |
+        emacs -batch -L . -f batch-byte-compile *.el
