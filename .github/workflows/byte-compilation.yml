@@ -20,7 +20,7 @@ jobs:
     - name: Set up Emacs
       uses: purcell/setup-emacs@master
       with:
-        version: '30.01'
+        version: '30.1'
 
         
     - name: Byte Compilation
