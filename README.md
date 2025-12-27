@@ -1,17 +1,20 @@
 # turepo
 
-Open your project's git repository in the browser with a single command.
+Open your project's git repository in the browser in a flash.
+
+[![MELPA](https://melpa.org/packages/turepo-badge.svg)](https://melpa.org/#/turepo)
+
 
 ## Features
 
 - Jump from code to web repository instantly
-- Supports GitHub and GitLab (both SSH and HTTPS URLs)
-- Works with SSH config aliases (`github-work`, `gitlab-personal`, etc.)
-- Compatible with self-hosted instances (github and gitlab only)
+- Supports GitHub, GitLab, Codeberg and SourceHut (both SSH and HTTPS URLs)
+- Works with SSH config aliases
+- Compatible with self-hosted instances (https only)
 
 ## Installation
 
-### From MELPA (recommended) (awating-merge)
+### From MELPA (recommended) ~~(awating-merge)~~ (merged)
 
 Check melpa merge status here: https://github.com/melpa/melpa/pull/9726
 
