@@ -59,6 +59,7 @@ Argument TUREPO-ABS-FP Absolute file path of the file to be read."
 
 
 ;; main :: go to repo
+;;;###autoload
 (defun turepo ()
   "Main function to go to the current project's git repo web page."
   (interactive)
