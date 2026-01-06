@@ -45,8 +45,35 @@ git clone https://github.com/swarnimcodes/turepo ~/.emacs.d/turepo
 
 ## Usage
 
-Run `M-x turepo` or press `C-c g r` (if you set up the keybinding above) while in any project buffer. 
+Run `M-x turepo` or press `C-c g r` (if you set up the keybinding above) while in any project buffer.
 your default browser will open to the repository's web page.
+
+## Configuration
+
+### Debug Mode
+
+By default, turepo operates silently and only displays error messages. You can enable debug mode to see detailed execution information:
+
+```elisp
+;; Enable debug mode
+(setq turepo-debug-mode t)
+```
+
+Or with `use-package`:
+
+```elisp
+(use-package turepo
+  :ensure t
+  :bind (("C-c g r" . turepo))
+  :custom
+  (turepo-debug-mode t))
+```
+
+When enabled, debug messages will show:
+- Git repository location
+- Config file path
+- Matched URL pattern (HTTP/SSH/git@)
+- URL being opened
 
 ## License
 
