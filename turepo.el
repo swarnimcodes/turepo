@@ -4,7 +4,7 @@
 
 ;; Author: Swarnim Barapatre <swarnim14.9@hotmail.com>
 ;; Maintainer: Swarnim Barapatre <swarnim14.9@hotmail.com>
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Package-Requires: ((emacs "28.1"))
 ;; Keywords: vc, git, convenience, github
 ;; URL: https://github.com/swarnimcodes/turepo
@@ -44,11 +44,45 @@
 
 ;; Or directly via the `turepo` function provided by the package.
 
+;; Configuration:
+
+;; turepo-debug-mode (default: nil)
+;;   When enabled, displays debug messages showing the execution flow,
+;;   including git repository location, config file path, matched URL
+;;   pattern, and the URL being opened.  When disabled (default), turepo
+;;   operates silently on success and only displays error messages.
+;;
+;;   Enable debug mode:
+;;   (setq turepo-debug-mode t)
+;;
+;;   Or via use-package:
+;;   (use-package turepo
+;;     :custom
+;;     (turepo-debug-mode t))
+
 ;; Developed by Swarnim B (https://smarniw.com)
 
 ;;; Code:
 (require 'vc)
 
+;; add a debug mode option
+(defcustom turepo-debug-mode nil
+  "Enable debug messages in turepo.
+When enabled, the program will try to log helpful debug messsages \
+regarding the execution in the message buffer.
+When turned off, the program will execute silently."
+  :type 'boolean
+  :group 'vc)
+
+
+;; helper function to print to message buffer
+(defun turepo--message (format-string &rest args)
+  "Print the message to the message buffer if `turepo-debug-mode` is enabled.
+FORMAT-STRING and ARGS are passed to `message'."
+  (when turepo-debug-mode
+    (apply #'message format-string args)))
+
+;; 
 (defun turepo-read-abs-fp (turepo-abs-fp)
   "Read text as string from an absolute file path.
 Argument TUREPO-ABS-FP Absolute file path of the file to be read."
@@ -65,6 +99,7 @@ Argument TUREPO-ABS-FP Absolute file path of the file to be read."
   (interactive)
   (catch 'not-in-git-repo
     (let* ((turepo-root-dir (vc-root-dir)))
+      (turepo--message "[turepo-debug] Found git repository at: %s" turepo-root-dir)
 
       (unless turepo-root-dir
 	;; when we are not inside a git repo, print a helpful message and exit
@@ -74,6 +109,8 @@ Argument TUREPO-ABS-FP Absolute file path of the file to be read."
       (let* ((turepo-git-cfg-fp (file-name-concat (expand-file-name turepo-root-dir) ".git" "config"))
 	     (turepo-git-cfg (turepo-read-abs-fp turepo-git-cfg-fp)))
 
+	(turepo--message "[turepo-debug] Reading git config from: %s" turepo-git-cfg-fp)
+
 	;; search for git url
 	(cond
 	 ;; if it's already HTTP/HTTPS, use it directly
@@ -81,7 +118,8 @@ Argument TUREPO-ABS-FP Absolute file path of the file to be read."
 	  (let* ((turepo-url-raw (match-string 1 turepo-git-cfg))
 		 ;; strip .git suffix if present
 		 (turepo-url (replace-regexp-in-string "\\.git$" "" turepo-url-raw)))
-            (message "[turepo-info] Opening: %s" turepo-url)
+	    (turepo--message "[turepo-debug] Matched HTTP(S) URL pattern")
+            (turepo--message "[turepo-info] Opening: %s" turepo-url)
             (browse-url turepo-url)))
 
 	 ;; ssh:// format (codeberg, sourcehut, etc.)
@@ -91,7 +129,8 @@ Argument TUREPO-ABS-FP Absolute file path of the file to be read."
 	 ((string-match "url = ssh://git@\\(.+\\)" turepo-git-cfg)
 	  (let* ((turepo-path (match-string 1 turepo-git-cfg))  ;; e.g., "codeberg.org/smarniw/repo.git"
 		 (turepo-url (concat "https://" (replace-regexp-in-string "\\.git$" "" turepo-path))))
-	    (message "[turepo-info] Opening %s" turepo-url)
+	    (turepo--message "[turepo-debug] Matched SSH URL pattern")
+	    (turepo--message "[turepo-info] Opening %s" turepo-url)
 	    (browse-url turepo-url)))
 
 	 ;; github/gitlab format :: git@HOST:REPO.git
@@ -102,7 +141,8 @@ Argument TUREPO-ABS-FP Absolute file path of the file to be read."
 	  (let* ((turepo-ssh-host (match-string 1 turepo-git-cfg))
 		 (turepo-repo-path (match-string 2 turepo-git-cfg))
 		 (turepo-url (concat "https://" turepo-ssh-host "/" turepo-repo-path)))
-	    (message "[turepo-info] Opening %s" turepo-url)
+	    (turepo--message "[turepo-debug] Matched git@host:repo pattern")
+	    (turepo--message "[turepo-info] Opening %s" turepo-url)
 	    (browse-url turepo-url)))
 
 	 (t (message "[turepo-error] Could not find an appropriate git remote URL")))))))
